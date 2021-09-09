@@ -15,6 +15,8 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
 import java.math.BigDecimal;
@@ -31,6 +33,9 @@ class NovoIngredienteControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Test
     void deveCadastrarNovoIngrediente() throws Exception {
@@ -85,6 +90,28 @@ class NovoIngredienteControllerTest {
     }
     @Test
     void naoDeveCadastrarIngredienteComQuantidadeNegativa() throws Exception{
+        NovoIngredienteRequest body = new NovoIngredienteRequest("Muçarela", new BigDecimal("2.0"), 200);
+        MockHttpServletRequestBuilder request = post("/api/ingredientes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(body));
+
+        mvc.perform(request).andExpect(status().is4xxClientError());
+    }
+    @Test
+    void naoDeveCadastrarIngredienteComNomeVazio() throws Exception{
+        NovoIngredienteRequest body = new NovoIngredienteRequest("", new BigDecimal("2.0"), 200);
+        MockHttpServletRequestBuilder request = post("/api/ingredientes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(body));
+
+        mvc.perform(request).andExpect(status().is4xxClientError());
+    }
+    @Test
+    @Transactional
+    void naoDeveCadastrarIngredienteComNomeJaCadastrado() throws Exception{
+        NovoIngredienteRequest ingredienteCadastrado = new NovoIngredienteRequest("Muçarela", new BigDecimal("2.0"), 200);
+
+        entityManager.persist(ingredienteCadastrado.paraIngrediente());
         NovoIngredienteRequest body = new NovoIngredienteRequest("Muçarela", new BigDecimal("2.0"), 200);
         MockHttpServletRequestBuilder request = post("/api/ingredientes")
                 .contentType(MediaType.APPLICATION_JSON)

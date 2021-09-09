@@ -7,6 +7,8 @@ import br.com.zup.edu.pizzaria.shared.validators.UniqueValue;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -41,9 +43,14 @@ public class NovaPizzaRequest {
     public Pizza paraPizza(IngredienteRepository repository) {
 
         List<Ingrediente> ingredientes = repository.findAllById(this.ingredientes);
-
         return new Pizza(sabor, ingredientes);
     }
+//    public Pizza paraPizza(EntityManager entityManager) {
+//
+//        List<Ingrediente> ingredientes = (List<Ingrediente>) entityManager.find(Ingrediente.class, this.ingredientes);
+//
+//        return new Pizza(sabor, ingredientes);
+//    }
 
     public String getSabor() {
         return sabor;
