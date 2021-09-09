@@ -36,7 +36,6 @@ class NovoIngredienteRequest {
     }
 
     public Ingrediente paraIngrediente() {
-
         return new Ingrediente(nome, quantidade, preco);
     }
 

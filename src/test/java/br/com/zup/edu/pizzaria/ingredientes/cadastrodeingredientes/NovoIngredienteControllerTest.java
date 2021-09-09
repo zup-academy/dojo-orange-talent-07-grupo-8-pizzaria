@@ -43,7 +43,53 @@ class NovoIngredienteControllerTest {
         mvc.perform(request)
            .andExpect(status().isCreated())
            .andExpect(header().exists("Location"))
-                .andExpect(redirectedUrlPattern("/api/ingredientes/\\d"));
+                .andExpect(redirectedUrlPattern("/api/ingredientes/*"));
 
+    }
+
+    @Test
+    void naoDeveCadastrarIngredienteComPrecoVazio() throws Exception{
+        NovoIngredienteRequest body = new NovoIngredienteRequest("", new BigDecimal("2.0"), 200);
+        MockHttpServletRequestBuilder request = post("/api/ingredientes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(body));
+
+        mvc.perform(request).andExpect(status().is4xxClientError());
+    }
+    @Test
+    void naoDeveCadastrarIngredienteComNomeNulo() throws Exception{
+        NovoIngredienteRequest body = new NovoIngredienteRequest(null, new BigDecimal("2.0"), 200);
+        MockHttpServletRequestBuilder request = post("/api/ingredientes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(body));
+
+        mvc.perform(request).andExpect(status().is4xxClientError());
+    }
+    @Test
+    void naoDeveCadastrarIngredienteComPrecoNegativo() throws Exception{
+        NovoIngredienteRequest body = new NovoIngredienteRequest(null, new BigDecimal("-2.0"), 200);
+        MockHttpServletRequestBuilder request = post("/api/ingredientes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(body));
+
+        mvc.perform(request).andExpect(status().is4xxClientError());
+    }
+    @Test
+    void naoDeveCadastrarIngredienteComPrecoNulo() throws Exception{
+        NovoIngredienteRequest body = new NovoIngredienteRequest("Queijo muçarela", null, 200);
+        MockHttpServletRequestBuilder request = post("/api/ingredientes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(body));
+
+        mvc.perform(request).andExpect(status().is4xxClientError());
+    }
+    @Test
+    void naoDeveCadastrarIngredienteComQuantidadeNegativa() throws Exception{
+        NovoIngredienteRequest body = new NovoIngredienteRequest("Muçarela", new BigDecimal("2.0"), 200);
+        MockHttpServletRequestBuilder request = post("/api/ingredientes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(body));
+
+        mvc.perform(request).andExpect(status().is4xxClientError());
     }
 }
