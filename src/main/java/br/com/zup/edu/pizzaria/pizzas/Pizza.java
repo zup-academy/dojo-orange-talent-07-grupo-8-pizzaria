@@ -20,7 +20,7 @@ public class Pizza {
     @Column(unique = true, nullable = false)
     private String sabor;
 
-    private BigDecimal preco = new BigDecimal("0.0");
+    private BigDecimal preco;
 
     @ManyToMany
     private List<Ingrediente> ingredientes = new ArrayList<>();
@@ -39,11 +39,14 @@ public class Pizza {
     }
 
     private void calcularPreco() {
-        this.preco.add(PRECO_MASSA);
-        this.preco.add(PRECO_MAO_DE_OBRA);
-        this.ingredientes.stream()
-                .map(Ingrediente::getPreco)
-                .forEach(preco::add);
+
+        BigDecimal precoTotal = PRECO_MASSA.add(PRECO_MAO_DE_OBRA);
+
+        for (Ingrediente i : this.ingredientes) {
+            precoTotal = precoTotal.add(i.getPreco());
+        }
+
+        this.preco = precoTotal;
     }
 
     public Long getId() {

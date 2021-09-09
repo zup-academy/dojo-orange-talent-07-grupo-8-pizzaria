@@ -7,6 +7,7 @@ import br.com.zup.edu.pizzaria.pizzas.PizzaRepository;
 import br.com.zup.edu.pizzaria.pizzas.cadastropizza.NovaPizzaRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -106,5 +107,23 @@ public class NovaPizzaControllerTest {
                 .content(new ObjectMapper().writeValueAsString(body));
         mvc.perform(request)
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void deveRetornarPrecoCorreto() throws Exception {
+
+        Ingrediente ingrediente = new Ingrediente("Frango",100,new BigDecimal("10.0"));
+        entityManager.persist(ingrediente);
+        List<Long> listaIngred = new ArrayList<Long>();
+        listaIngred.add(ingrediente.getId());
+
+        NovaPizzaRequest body = new NovaPizzaRequest("Frango", listaIngred);
+        Pizza pizza = body.paraPizza(ingredienteRepository);
+
+        entityManager.persist(pizza);
+
+        Assertions.assertEquals(pizza.getPreco(), new BigDecimal("30.0"));
+
+
     }
 }
